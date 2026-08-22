@@ -1,0 +1,661 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>KreO App</title>
+  <style>
+    :root {
+      /* Tema Por Defecto: Vinotinto / Magenta */
+      --bg-gradient: linear-gradient(180deg, #110509 0%, #2b040e 40%, #0d0004 100%);
+      --card-bg: rgba(30, 20, 25, 0.85);
+      --input-bg: #140d10;
+      --accent-primary: #ff4d6d;
+      --accent-hover: #e03a58;
+      --text-main: #ffffff;
+      --text-sub: #b3a2a8;
+      --gold: #ffb703;
+      --green: #2ec4b6;
+      --red: #e63946;
+    }
+
+    /* Temas Dinámicos */
+    body.theme-vinotinto {
+      --bg-gradient: linear-gradient(180deg, #110509 0%, #2b040e 40%, #0d0004 100%);
+      --card-bg: rgba(30, 20, 25, 0.85);
+      --input-bg: #140d10;
+      --accent-primary: #ff4d6d;
+      --accent-hover: #e03a58;
+      --text-sub: #b3a2a8;
+    }
+
+    body.theme-verde {
+      --bg-gradient: linear-gradient(180deg, #021a17 0%, #064e3b 40%, #010f0d 100%);
+      --card-bg: rgba(15, 35, 30, 0.85);
+      --input-bg: #091714;
+      --accent-primary: #10b981;
+      --accent-hover: #059669;
+      --text-sub: #9ca3af;
+    }
+
+    body.theme-naranja {
+      --bg-gradient: linear-gradient(180deg, #1c0a00 0%, #431407 40%, #0f0500 100%);
+      --card-bg: rgba(35, 20, 15, 0.85);
+      --input-bg: #170c06;
+      --accent-primary: #f97316;
+      --accent-hover: #ea580c;
+      --text-sub: #d1d5db;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', sans-serif; }
+    body { background: var(--bg-gradient); color: var(--text-main); min-height: 100vh; display: flex; justify-content: center; align-items: center; padding: 15px; transition: background 0.4s ease; }
+    .container { width: 100%; max-width: 420px; }
+    .card { background: var(--card-bg); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 20px; padding: 25px 20px; backdrop-filter: blur(10px); box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-bottom: 20px; transition: background 0.4s ease; }
+    
+    /* Logo de Imagen y Selector de Temas */
+    .logo-container { text-align: center; margin-bottom: 20px; }
+    .app-logo { width: 110px; height: auto; margin-bottom: 8px; filter: drop-shadow(0 4px 8px rgba(0,0,0,0.5)); }
+    .logo-title { font-size: 26px; font-weight: bold; letter-spacing: 1px; color: #fff; }
+    
+    .dots-indicator { display: flex; justify-content: center; gap: 12px; margin-bottom: 15px; }
+    .dot { width: 16px; height: 16px; border-radius: 50%; cursor: pointer; transition: transform 0.2s, border 0.2s; border: 2px solid transparent; }
+    .dot:hover { transform: scale(1.2); }
+    .dot-1 { background: #800f2f; } 
+    .dot-2 { background: #10b981; } 
+    .dot-3 { background: #f97316; }
+
+    .form-group { margin-bottom: 15px; text-align: left; }
+    label { display: block; font-size: 13px; color: var(--text-sub); margin-bottom: 6px; font-weight: 600; }
+    input, select { width: 100%; padding: 12px 15px; background: var(--input-bg); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 10px; color: #fff; font-size: 14px; outline: none; }
+    input:focus, select:focus { border-color: var(--accent-primary); }
+
+    .btn { width: 100%; padding: 14px; background: var(--accent-primary); border: none; border-radius: 12px; color: #fff; font-size: 16px; font-weight: bold; cursor: pointer; transition: background 0.2s; margin-top: 10px; }
+    .btn:hover { background: var(--accent-hover); }
+    .btn-secondary { background: rgba(255, 255, 255, 0.1); color: #fff; margin-top: 8px; }
+    .btn-small { padding: 8px 12px; font-size: 12px; width: auto; margin-top: 0; }
+
+    .link-text { text-align: center; margin-top: 15px; font-size: 13px; color: var(--text-sub); text-decoration: underline; cursor: pointer; }
+    .hidden { display: none !important; }
+
+    .credit-box { background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 15px; padding: 15px; text-align: center; margin-bottom: 15px; }
+    .credit-amount { font-size: 36px; font-weight: bold; margin: 5px 0; }
+    .stars { color: var(--gold); font-size: 18px; margin-bottom: 8px; }
+    .badge { display: inline-block; padding: 4px 12px; border-radius: 20px; font-size: 11px; font-weight: bold; text-transform: uppercase; }
+    .badge-activo { background: rgba(46, 196, 182, 0.2); color: var(--green); border: 1px solid var(--green); }
+    .badge-bloqueado { background: rgba(230, 57, 70, 0.2); color: var(--red); border: 1px solid var(--red); }
+
+    .cuota-card { background: rgba(0, 0, 0, 0.3); border-radius: 10px; padding: 12px; margin-top: 10px; border-left: 4px solid var(--accent-primary); }
+    .cuota-header { display: flex; justify-content: space-between; font-size: 13px; font-weight: bold; }
+    .cuota-sub { font-size: 11px; color: var(--text-sub); margin-top: 4px; }
+
+    .admin-item { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.05); }
+    .admin-actions { display: flex; gap: 5px; margin-top: 8px; flex-wrap: wrap; }
+  </style>
+</head>
+<body class="theme-vinotinto">
+
+<div class="container">
+
+  <!-- VISTA 1: LOGIN CLIENTE -->
+  <div id="view-login-client" class="card">
+    <div class="dots-indicator" title="Selecciona un tema">
+      <div class="dot dot-1" onclick="setTheme('vinotinto')" title="Tema Vinotinto"></div>
+      <div class="dot dot-2" onclick="setTheme('verde')" title="Tema Verde"></div>
+      <div class="dot dot-3" onclick="setTheme('naranja')" title="Tema Naranja"></div>
+    </div>
+    <div class="logo-container">
+      <img src="https://i.ibb.co/gZGN4pky/Background-Eraser-20260818-142015879.png" alt="KreO Logo" class="app-logo">
+      <div class="logo-title">KreO</div>
+    </div>
+    <div class="form-group">
+      <label>Cédula</label>
+      <input type="number" id="login-cedula" placeholder="Ingresa tu cédula">
+    </div>
+    <div class="form-group">
+      <label>Código de Verificación (3 dígitos)</label>
+      <input type="text" id="login-codigo" placeholder="EJ: G3H">
+    </div>
+    <button class="btn" onclick="loginCliente()">Ingresar</button>
+    <div class="link-text" onclick="showView('view-register-client')">¿No tienes cuenta? Regístrate</div>
+    <div class="link-text" style="margin-top: 25px; color: var(--gold);" onclick="showView('view-login-admin')">Acceso Administrador / Barbero</div>
+  </div>
+
+  <!-- VISTA 2: REGISTRO CLIENTE -->
+  <div id="view-register-client" class="card hidden">
+    <div class="logo-container">
+      <img src="https://i.ibb.co/gZGN4pky/Background-Eraser-20260818-142015879.png" alt="KreO Logo" class="app-logo">
+      <div class="logo-title">KreO</div>
+    </div>
+    <div class="form-group">
+      <label>Nombre y Apellido</label>
+      <input type="text" id="reg-nombre" placeholder="Ej: Juan Pérez">
+    </div>
+    <div class="form-group">
+      <label>Cédula</label>
+      <input type="number" id="reg-cedula" placeholder="Ej: 12345678">
+    </div>
+    <div class="form-group">
+      <label>Teléfono</label>
+      <input type="tel" id="reg-telefono" placeholder="Ej: 04121234567">
+    </div>
+    <div class="form-group">
+      <label>Selecciona tu Barbero</label>
+      <select id="reg-barbero"><option value="">Cargando barberos...</option></select>
+    </div>
+    <button class="btn" onclick="registrarCliente()">Registrarse</button>
+    <div class="link-text" onclick="showView('view-login-client')">¿Ya tienes cuenta? Inicia sesión</div>
+  </div>
+
+  <!-- VISTA 3: DASHBOARD CLIENTE -->
+  <div id="view-dash-client" class="card hidden">
+    <div class="logo-container">
+      <img src="https://i.ibb.co/gZGN4pky/Background-Eraser-20260818-142015879.png" alt="KreO Logo" class="app-logo">
+      <div class="logo-title">KreO</div>
+    </div>
+    <div class="credit-box">
+      <div style="font-size: 11px; color: var(--text-sub); font-weight: bold;">CRÉDITO DISPONIBLE</div>
+      <div class="credit-amount" id="dash-credito">$0.00</div>
+      <div style="font-size: 13px; color: var(--green); font-weight: bold;" id="dash-credito-bs">Bs. 0.00</div>
+      <div class="stars" id="dash-estrellas" style="margin-top:8px;">★☆☆☆☆</div>
+      <span id="dash-estado-badge" class="badge badge-activo">ACTIVO</span>
+    </div>
+    <div style="display: flex; gap: 10px;">
+      <button class="btn" onclick="showView('view-solicitar-credito')">🛍️ Solicitar</button>
+      <button class="btn btn-secondary" onclick="showView('view-reportar-pago')">💳 Pagar</button>
+    </div>
+    <div style="margin-top: 20px;">
+      <label>Cuotas Pendientes</label>
+      <div id="dash-lista-cuotas"></div>
+    </div>
+    <button class="btn btn-secondary" style="margin-top: 20px;" onclick="cerrarSesion()">Cerrar Sesión</button>
+  </div>
+
+  <!-- VISTA 4: SOLICITAR CRÉDITO -->
+  <div id="view-solicitar-credito" class="card hidden">
+    <h3>Solicitar Crédito</h3>
+    <p style="font-size: 12px; color: var(--text-sub); margin-top: 10px; margin-bottom: 15px;">Calcula el financiamiento de tu servicio o producto.</p>
+    <div class="form-group">
+      <label>Monto Total del Producto ($)</label>
+      <input type="number" id="sol-monto" placeholder="Ej: 5" oninput="calcularDesglose()">
+    </div>
+    <div class="credit-box" style="text-align: left; font-size: 13px;">
+      <div>• Pago en Caja (60%): <b id="sol-inicial" style="color: var(--accent-primary);">$0.00 (Bs. 0.00)</b></div>
+      <div style="margin-top: 4px;">• Financiado KreO (40%): <b id="sol-financiado">$0.00 (Bs. 0.00)</b></div>
+      <div style="font-size: 11px; color: var(--gold); margin-top: 8px;">⚠️ Tendrás de 7 a 10 días para cancelar la cuota del 40%.</div>
+    </div>
+    <button class="btn" onclick="confirmarSolicitud()">Confirmar Solicitud</button>
+    <button class="btn btn-secondary" onclick="showView('view-dash-client')">Cancelar</button>
+  </div>
+
+  <!-- VISTA 5: REPORTAR PAGO -->
+  <div id="view-reportar-pago" class="card hidden">
+    <h3>Reportar Pago Móvil</h3>
+    <div class="form-group" style="margin-top: 15px;">
+      <label>Cuota a Cancelar</label>
+      <select id="pag-cuota-select"></select>
+    </div>
+    <div class="form-group">
+      <label>Últimos 4 dígitos de la Referencia</label>
+      <input type="number" id="pag-ref" placeholder="Ej: 4821">
+    </div>
+    <button class="btn" onclick="enviarReportePago()">Enviar Reporte a Barbero</button>
+    <button class="btn btn-secondary" onclick="showView('view-dash-client')">Cancelar</button>
+  </div>
+
+  <!-- VISTA 6: LOGIN ADMIN -->
+  <div id="view-login-admin" class="card hidden">
+    <h3>Acceso Barbero / Admin</h3>
+    <div class="form-group" style="margin-top: 15px;">
+      <label>Cédula</label>
+      <input type="number" id="admin-login-cedula">
+    </div>
+    <div class="form-group">
+      <label>Contraseña</label>
+      <input type="password" id="admin-login-pass">
+    </div>
+    <button class="btn" onclick="loginAdmin()">Entrar al Panel</button>
+    <div class="link-text" onclick="showView('view-reg-admin')">¿Eres nuevo barbero? Regístrate</div>
+    <div class="link-text" onclick="showView('view-login-client')">Volver a App Clientes</div>
+  </div>
+
+  <!-- VISTA 7: REGISTRO ADMIN -->
+  <div id="view-reg-admin" class="card hidden">
+    <h3>Registro de Barbero</h3>
+    <div class="form-group" style="margin-top: 10px;">
+      <label>Nombre y Apellido</label>
+      <input type="text" id="admin-reg-nombre">
+    </div>
+    <div class="form-group">
+      <label>Cédula</label>
+      <input type="number" id="admin-reg-cedula">
+    </div>
+    <div class="form-group">
+      <label>Teléfono (WhatsApp)</label>
+      <input type="tel" id="admin-reg-tel" placeholder="Ej: 04121234567">
+    </div>
+    <div class="form-group">
+      <label>Crea tu Contraseña</label>
+      <input type="password" id="admin-reg-pass">
+    </div>
+    <div class="form-group">
+      <label>Clave Maestra de Autorización</label>
+      <input type="password" id="admin-reg-maestra" placeholder="Requerida para registrar admins">
+    </div>
+    <button class="btn" onclick="registrarAdmin()">Crear Administrador</button>
+    <button class="btn btn-secondary" onclick="showView('view-login-admin')">Cancelar</button>
+  </div>
+
+  <!-- VISTA 8: DASHBOARD ADMIN -->
+  <div id="view-dash-admin" class="card hidden">
+    <h3>Panel Barbero: <span id="admin-nombre-header"></span></h3>
+    <p style="font-size: 11px; color: var(--text-sub); margin-top: 5px; margin-bottom: 15px;">Gestión exclusiva de tus clientes asignados.</p>
+    
+    <h4 style="margin-top:10px;">Lista de Clientes</h4>
+    <div id="admin-lista-clientes" style="margin-top: 10px;"></div>
+
+    <h4 style="margin-top:15px;">Solicitudes / Cuotas Pendientes</h4>
+    <div id="admin-lista-cuotas" style="margin-top: 10px;"></div>
+
+    <button class="btn btn-secondary" style="margin-top: 20px;" onclick="cerrarSesion()">Cerrar Sesión</button>
+  </div>
+
+</div>
+
+<script>
+  const SCRIPT_URL = "https://script.google.com/macros/s/AKfycby5h_873rObHgV46cpDK9j3RRz9nZvm1SAMBcYlofROW-jw58e9REyHZGMTCIXTusAdVA/exec";
+
+  let clienteSesion = null;
+  let adminSesion = null;
+  let datosAdminCargados = null;
+  let tasaBCV = 36.50; // Valor por defecto en caso de fallback
+
+  window.onload = function() {
+    obtenerTasaBCV();
+    cargarBarberos();
+  };
+
+  // Función para obtener la tasa del BCV del día
+  function obtenerTasaBCV() {
+    fetch('https://ve.dolarapi.com/v1/dolares/oficial')
+      .then(r => r.json())
+      .then(data => {
+        if (data && data.promedio) {
+          tasaBCV = parseFloat(data.promedio);
+        }
+      })
+      .catch(() => {});
+  }
+
+  // Formateador de WhatsApp con +58
+  function formatearWhatsApp(numero) {
+    if(!numero) return "";
+    let limpio = numero.toString().replace(/\D/g, '');
+    if(limpio.startsWith("0")) {
+      limpio = "58" + limpio.substring(1);
+    } else if(!limpio.startsWith("58")) {
+      limpio = "58" + limpio;
+    }
+    return limpio;
+  }
+
+  function setTheme(themeName) {
+    document.body.className = `theme-${themeName}`;
+  }
+
+  function showView(viewId) {
+    document.querySelectorAll('.card').forEach(c => c.classList.add('hidden'));
+    document.getElementById(viewId).classList.remove('hidden');
+  }
+
+  function cargarBarberos() {
+    fetch(`${SCRIPT_URL}?action=obtenerBarberos`)
+      .then(r => r.json())
+      .then(d => {
+        if(d.success) {
+          const select = document.getElementById('reg-barbero');
+          select.innerHTML = '<option value="">-- Selecciona --</option>';
+          d.barberos.forEach(b => {
+            select.innerHTML += `<option value="${b.idBarbero}">${b.nombreApellido}</option>`;
+          });
+        }
+      });
+  }
+
+  function registrarCliente() {
+    const data = {
+      action: "registrarCliente",
+      nombreApellido: document.getElementById('reg-nombre').value,
+      cedula: document.getElementById('reg-cedula').value,
+      telefono: document.getElementById('reg-telefono').value,
+      idBarbero: document.getElementById('reg-barbero').value
+    };
+
+    if(!data.nombreApellido || !data.cedula || !data.telefono || !data.idBarbero) {
+      alert("Por favor completa todos los campos.");
+      return;
+    }
+
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          alert(`¡Registro Exitoso! Tu CÓDIGO ID es: ${res.codigoID}. Úsalo junto a tu cédula para ingresar.`);
+          showView('view-login-client');
+        } else {
+          alert("Error: " + res.message);
+        }
+      });
+  }
+
+  function loginCliente() {
+    const cedula = document.getElementById('login-cedula').value;
+    const codigo = document.getElementById('login-codigo').value;
+
+    if(!cedula || !codigo) return alert("Ingresa cédula y código.");
+
+    fetch(`${SCRIPT_URL}?action=obtenerDatosCliente&cedula=${cedula}&codigoID=${codigo}`)
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          clienteSesion = res;
+          renderDashCliente();
+          showView('view-dash-client');
+        } else {
+          alert(res.message);
+        }
+      });
+  }
+
+  function renderDashCliente() {
+    const c = clienteSesion.cliente;
+    const creditoUsd = parseFloat(c.creditoDisponible) || 0;
+    
+    document.getElementById('dash-credito').innerText = `$${creditoUsd.toFixed(2)}`;
+    document.getElementById('dash-credito-bs').innerText = `Bs. ${(creditoUsd * tasaBCV).toFixed(2)}`;
+    document.getElementById('dash-estrellas').innerText = "★".repeat(c.estrellas) + "☆".repeat(5 - c.estrellas);
+    
+    const badge = document.getElementById('dash-estado-badge');
+    badge.innerText = c.estado;
+    badge.className = `badge ${c.estado === 'ACTIVO' ? 'badge-activo' : 'badge-bloqueado'}`;
+
+    const lista = document.getElementById('dash-lista-cuotas');
+    const selectPagar = document.getElementById('pag-cuota-select');
+    lista.innerHTML = "";
+    selectPagar.innerHTML = "";
+
+    // Ocultar cuotas pagadas
+    const cuotasPendientes = clienteSesion.cuotas.filter(q => q.estado !== "PAGADO");
+
+    if(cuotasPendientes.length === 0) {
+      lista.innerHTML = "<p style='font-size:12px; color:var(--text-sub);'>No tienes cuotas pendientes.</p>";
+    } else {
+      cuotasPendientes.forEach(q => {
+        const montoUsd = parseFloat(q.montoCuotaActual);
+        const montoBs = (montoUsd * tasaBCV).toFixed(2);
+        lista.innerHTML += `
+          <div class="cuota-card">
+            <div class="cuota-header">
+              <span>Cuota ID: ${q.idCuota}</span>
+              <span style="color:var(--accent-primary);">$${montoUsd.toFixed(2)} (Bs. ${montoBs})</span>
+            </div>
+            <div class="cuota-sub">Vence: ${q.fechaVencimiento} | Estado: <b>${q.estado}</b></div>
+          </div>
+        `;
+        if(q.estado === "PENDIENTE" || q.estado === "VENCIDO_CON_MORA") {
+          selectPagar.innerHTML += `<option value="${q.idCuota}">Cuota ${q.idCuota} - $${montoUsd.toFixed(2)} (Bs. ${montoBs})</option>`;
+        }
+      });
+    }
+  }
+
+  function calcularDesglose() {
+    const monto = parseFloat(document.getElementById('sol-monto').value) || 0;
+    const inicialUsd = monto * 0.60;
+    const financiadoUsd = monto * 0.40;
+
+    const inicialBs = (inicialUsd * tasaBCV).toFixed(2);
+    const financiadoBs = (financiadoUsd * tasaBCV).toFixed(2);
+
+    document.getElementById('sol-inicial').innerText = `$${inicialUsd.toFixed(2)} (Bs. ${inicialBs})`;
+    document.getElementById('sol-financiado').innerText = `$${financiadoUsd.toFixed(2)} (Bs. ${financiadoBs})`;
+  }
+
+  function confirmarSolicitud() {
+    const monto = parseFloat(document.getElementById('sol-monto').value);
+    if(!monto || monto <= 0) return alert("Ingresa un monto válido.");
+
+    const data = {
+      action: "solicitarCredito",
+      cedula: clienteSesion.cliente.cedula,
+      montoTotal: monto
+    };
+
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          const inicialUsd = (monto * 0.60).toFixed(2);
+          const inicialBs = (parseFloat(inicialUsd) * tasaBCV).toFixed(2);
+          
+          const financiadoUsd = res.financiadoKreO;
+          const financiadoBs = (parseFloat(financiadoUsd) * tasaBCV).toFixed(2);
+
+          const msg = encodeURIComponent(
+            `👋 Hola! Solicité un crédito en KreO:\n` +
+            `👤 Cliente: ${clienteSesion.cliente.nombreApellido}\n` +
+            `🆔 Cuota ID: ${res.idCuota}\n` +
+            `💵 Pago en Caja (60%): $${inicialUsd} (Bs. ${inicialBs})\n` +
+            `💳 Financiado KreO (40%): $${financiadoUsd} (Bs. ${financiadoBs})`
+          );
+          
+          const phoneFormatted = formatearWhatsApp(clienteSesion.telefonoBarbero);
+          // Redirección directa para evitar bloqueo de ventanas emergentes (Pop-ups)
+          window.location.href = `https://wa.me/${phoneFormatted}?text=${msg}`;
+        } else {
+          alert("Error: " + res.message);
+        }
+      });
+  }
+
+  function enviarReportePago() {
+    const idCuota = document.getElementById('pag-cuota-select').value;
+    const ref = document.getElementById('pag-ref').value;
+
+    if(!idCuota || !ref) return alert("Selecciona la cuota e ingresa la referencia.");
+
+    const cuotaObj = clienteSesion.cuotas.find(q => q.idCuota.toString() === idCuota.toString());
+    const montoUsd = cuotaObj ? parseFloat(cuotaObj.montoCuotaActual) : 0;
+    const montoBs = (montoUsd * tasaBCV).toFixed(2);
+
+    const data = { action: "reportarPago", idCuota: idCuota, referencia: ref, metodoPago: "PagoMevil" };
+
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          const msg = encodeURIComponent(
+            `💳 Reporte de Pago Móvil KreO:\n` +
+            `👤 Cliente: ${clienteSesion.cliente.nombreApellido}\n` +
+            `🆔 Cuota ID: ${idCuota}\n` +
+            `💰 Monto: $${montoUsd.toFixed(2)} (Bs. ${montoBs})\n` +
+            `🔢 Ref: ${ref}`
+          );
+          
+          const phoneFormatted = formatearWhatsApp(clienteSesion.telefonoBarbero);
+          // Redirección directa para evitar bloqueo de ventanas emergentes (Pop-ups)
+          window.location.href = `https://wa.me/${phoneFormatted}?text=${msg}`;
+        } else {
+          alert("Error: " + res.message);
+        }
+      });
+  }
+
+  function registrarAdmin() {
+    const data = {
+      action: "registrarAdmin",
+      nombreApellido: document.getElementById('admin-reg-nombre').value,
+      cedula: document.getElementById('admin-reg-cedula').value,
+      telefono: document.getElementById('admin-reg-tel').value,
+      contrasena: document.getElementById('admin-reg-pass').value,
+      claveMaestra: document.getElementById('admin-reg-maestra').value
+    };
+
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          alert("¡Administrador registrado exitosamente! Ya puedes iniciar sesión.");
+          showView('view-login-admin');
+          cargarBarberos();
+        } else {
+          alert("Error: " + res.message);
+        }
+      });
+  }
+
+  function loginAdmin() {
+    const data = {
+      action: "loginAdmin",
+      cedula: document.getElementById('admin-login-cedula').value,
+      contrasena: document.getElementById('admin-login-pass').value
+    };
+
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(data) })
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          adminSesion = res.barbero;
+          document.getElementById('admin-nombre-header').innerText = adminSesion.nombreApellido;
+          cargarDatosAdmin();
+          showView('view-dash-admin');
+        } else {
+          alert("Error: " + res.message);
+        }
+      });
+  }
+
+  function cargarDatosAdmin() {
+    fetch(`${SCRIPT_URL}?action=obtenerDatosAdmin&idBarbero=${adminSesion.idBarbero}`)
+      .then(r => r.json())
+      .then(res => {
+        if(res.success) {
+          datosAdminCargados = res;
+          renderDashAdmin();
+        }
+      });
+  }
+
+  function renderDashAdmin() {
+    const listaC = document.getElementById('admin-lista-clientes');
+    listaC.innerHTML = "";
+
+    datosAdminCargados.clientes.forEach(c => {
+      listaC.innerHTML += `
+        <div class="admin-item">
+          <b>${c.nombreApellido}</b> (CI: ${c.cedula}) - ID: <b>${c.codigoID}</b><br>
+          <small>Crédito: $${c.creditoDisponible} | Estrellas: ${c.estrellas}⭐ | Estado: ${c.estado}</small>
+          <div class="admin-actions">
+            <button class="btn btn-small" onclick="modificarCredito('${c.cedula}', ${c.creditoDisponible})">💰 Crédito</button>
+            <button class="btn btn-small" onclick="modificarEstrellas('${c.cedula}', ${c.estrellas})">⭐ Estrellas</button>
+            <button class="btn btn-small" onclick="cambiarEstado('${c.cedula}', '${c.estado}')">${c.estado === 'ACTIVO' ? '🔒 Bloquear' : '🔓 Desbloquear'}</button>
+            <button class="btn btn-small" style="background:var(--red);" onclick="eliminarCliente('${c.cedula}')">🗑️</button>
+          </div>
+        </div>
+      `;
+    });
+
+    const listaQ = document.getElementById('admin-lista-cuotas');
+    listaQ.innerHTML = "";
+
+    // Ocultar cuotas pagadas en la vista del administrador/barbero
+    const cuotasSinPagar = datosAdminCargados.cuotas.filter(q => q.estado !== "PAGADO");
+
+    if(cuotasSinPagar.length === 0) {
+      listaQ.innerHTML = "<p style='font-size:12px; color:var(--text-sub);'>No hay solicitudes ni cuotas pendientes.</p>";
+    } else {
+      cuotasSinPagar.forEach(q => {
+        const montoUsd = parseFloat(q.montoCuotaActual);
+        const montoBs = (montoUsd * tasaBCV).toFixed(2);
+
+        listaQ.innerHTML += `
+          <div class="admin-item">
+            <b>Cuota: ${q.idCuota}</b> | Cliente CI: ${q.cedulaCliente}<br>
+            <small>Monto: $${montoUsd.toFixed(2)} (Bs. ${montoBs}) | Ref: ${q.referenciaPago || 'N/A'} | Estado: <b>${q.estado}</b></small>
+            <div class="admin-actions">
+              ${q.estado === 'EN_VERIFICACION' || q.estado === 'PENDIENTE' ? `<button class="btn btn-small" style="background:var(--green);" onclick="aprobarPago('${q.idCuota}', '${q.cedulaCliente}')">✅ Aprobar Pago</button>` : ''}
+              <button class="btn btn-small" style="background:#25D366;" onclick="recordarWhatsApp('${q.cedulaCliente}', '${q.montoCuotaActual}', '${q.fechaVencimiento}')">📲 Recordatorio WA</button>
+            </div>
+          </div>
+        `;
+      });
+    }
+  }
+
+  function modificarCredito(cedula, actual) {
+    const nuevo = prompt("Nuevo Crédito Disponible ($):", actual);
+    if(nuevo !== null) enviarAccionAdmin({ cedulaCliente: cedula, creditoDisponible: parseFloat(nuevo) });
+  }
+
+  function modificarEstrellas(cedula, actual) {
+    const nuevas = prompt("Estrellas (1 al 5):", actual);
+    if(nuevas !== null) enviarAccionAdmin({ cedulaCliente: cedula, estrellas: parseInt(nuevas) });
+  }
+
+  function cambiarEstado(cedula, actual) {
+    const nuevo = actual === 'ACTIVO' ? 'BLOQUEADO' : 'ACTIVO';
+    enviarAccionAdmin({ cedulaCliente: cedula, estado: nuevo });
+  }
+
+  function aprobarPago(idCuota, cedula) {
+    if(confirm("¿Confirmar que recibiste el pago de esta cuota?")) {
+      enviarAccionAdmin({ cedulaCliente: cedula, aprobarCuotaId: idCuota });
+    }
+  }
+
+  function eliminarCliente(cedula) {
+    if(confirm("¿Seguro que deseas eliminar este cliente?")) {
+      fetch(SCRIPT_URL, {
+        method: "POST",
+        body: JSON.stringify({ action: "eliminarClienteAdmin", cedulaCliente: cedula, idBarbero: adminSesion.idBarbero })
+      }).then(r => r.json()).then(res => {
+        alert(res.message);
+        cargarDatosAdmin();
+      });
+    }
+  }
+
+  function enviarAccionAdmin(payload) {
+    payload.action = "actualizarClienteAdmin";
+    payload.idBarbero = adminSesion.idBarbero;
+
+    fetch(SCRIPT_URL, { method: "POST", body: JSON.stringify(payload) })
+      .then(r => r.json())
+      .then(res => {
+        alert(res.message);
+        cargarDatosAdmin();
+      });
+  }
+
+  function recordarWhatsApp(cedula, monto, vencimiento) {
+    const cliente = datosAdminCargados.clientes.find(c => c.cedula.toString() === cedula.toString());
+    if(cliente) {
+      const montoUsd = parseFloat(monto);
+      const montoBs = (montoUsd * tasaBCV).toFixed(2);
+      const phoneFormatted = formatearWhatsApp(cliente.telefono);
+
+      const msg = encodeURIComponent(
+        `👋 Hola ${cliente.nombreApellido}, te recordamos que tu cuota KreO de $${montoUsd.toFixed(2)} (Bs. ${montoBs}) vence el ${vencimiento}. Evita recargos por mora (+10%) manteniendo tu cuenta al día.`
+      );
+      window.location.href = `https://wa.me/${phoneFormatted}?text=${msg}`;
+    }
+  }
+
+  function cerrarSesion() {
+    clienteSesion = null;
+    adminSesion = null;
+    showView('view-login-client');
+  }
+</script>
+
+</body>
+</html>
